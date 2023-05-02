@@ -2,3 +2,4 @@ aiogram
 loader
 speechrecognition
 fuzzywuzzy
+Levenshtein
