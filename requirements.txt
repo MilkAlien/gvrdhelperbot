@@ -1,0 +1,4 @@
+aiogram
+loader
+speechrecognition
+fuzzywuzzy
