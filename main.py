@@ -82,10 +82,27 @@ async def send_welcome(message: types.Message) -> None:
     user_id = user.id
     username = user.username
     await message.answer(f"Добро пожаловать {first_name}\nТвой ID: {user_id}", reply_markup=rm_kb())
-    await message.answer("<b>Гвардейцы</b> - <i>люди, охраняющие порядок и закон в чате. Если хочешь стать одним из них - пройди ряд процедур.</i>", parse_mode='HTML')
-    await message.answer("<b>Процедура 1.</b>\nПрисягни на верность нашему Императору.<i>Четко и без спешки запиши голосовым сообщением следующий текст:</i>", parse_mode='HTML')
-    await message.answer("<b>Становясь верноподданным Его Величества Императора Драга Первого Великолепного я обязываюсь выполнять его поручения и поручения начальников Имперской гвардии. Также я заявляю о готовности пройти все тяготы службы и покинуть службу в любой момент по приказу Императора. Для меня будет честью служить Империи и я не просрамлю гордого знамени, которое мне доверил Император, искореняя как внешних, так и внутренних врагов режима, я с доблестью пройду предначертанный мне путь.</b>", parse_mode='HTML')
-    await ProfileStatesGroup.voice.set()
+    with open("./data.py", "a+", encoding="utf-8") as data_file:
+            await message.answer(f"Проверка базы...")
+    with open("./data.py", "r", encoding="utf-8") as data_file:
+        value_ok = f"{user_id}:voice_ok"
+        text_data = data_file.read()
+        if value_ok in text_data:
+            await message.answer(f"✅Успех!", reply_markup=get_kb2())
+            await ProfileStatesGroup.state2.set()
+        else:
+            await message.answer(f"❌Провал!")
+            await message.answer(
+                "<b>Гвардейцы</b> - <i>люди, охраняющие порядок и закон в чате. Если хочешь стать одним из них - пройди ряд процедур.</i>",
+                parse_mode='HTML')
+            await message.answer(
+                "<b>Процедура 1.</b>\nПрисягни на верность нашему Императору.<i>Четко и без спешки запиши голосовым сообщением следующий текст:</i>",
+                parse_mode='HTML')
+            await message.answer(
+                "<b>Становясь верноподданным Его Величества Императора Драга Первого Великолепного я обязываюсь выполнять его поручения и поручения начальников Имперской гвардии. Также я заявляю о готовности пройти все тяготы службы и покинуть службу в любой момент по приказу Императора. Для меня будет честью служить Империи и я не просрамлю гордого знамени, которое мне доверил Император, искореняя как внешних, так и внутренних врагов режима, я с доблестью пройду предначертанный мне путь.</b>",
+                parse_mode='HTML')
+            await ProfileStatesGroup.voice.set()
+
 
 @dp.message_handler(content_types=['voice'], state=ProfileStatesGroup.voice)
 async def handle_voice_message(message: types.Message, state: FSMContext) -> None:
@@ -131,6 +148,8 @@ async def handle_voice_message(message: types.Message, state: FSMContext) -> Non
                         await bot.send_message(chat_id, f"Имя: {first_name}\nНик: @{username}\nID: {user_id}\n✅Успех!\nПростое сравнение: {text_fw1}%\nЧастичное сравнение: {text_fw2}%\nСравнение по токену(по словам): {text_fw3}%\nСравнение по токену(по словам игнорируя повторы): {text_fw4}%\nПродвинутое сравнение: {text_fw5}%")
                         with open(r"./voice/"+filename+".ogg", "rb") as audio:
                             await bot.send_audio(chat_id, audio)
+                        with open("./data.py", "a+", encoding="utf-8") as data_file:
+                            data_file.write(f'{first_name}:{username}:{user_id}:voice_ok\n')
                         await ProfileStatesGroup.next()
     else:
         await message.answer(f"❌Провал!\nПовтори еще раз!")
